@@ -1,0 +1,6 @@
+body { font: 20px Helvetica, Arial, sans-serif; color: black; }
+.board { width: 440px; margin: 0 auto; }
+.row { overflow: hidden; }
+.board .row div { float: left; width: 108px; height: 108px; border: 1px solid white; text-align: center; line-height: 118px; background-color: #DDD; }
+.board .row .highlight { background-color: #98AFC7; }
+
