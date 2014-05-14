@@ -30,13 +30,20 @@ angular.module('game2048', [])
       }
     };
   }])
-  .controller('GameController', ["$scope", function($scope) {
-    $scope.data = [
-      [0, 2, 4, 8],
-      [16, 32, 64, 128],
-      [256, 512, 1024, 2048],
-      [4096, 8192, 16384, 32768]
-    ];
+  .factory('Transformer', [function(){
+    return {
+      generateRandom: function(data, numberOfEmptySlot) {
+        return data;
+      },
+      
+      eliminate: function(data, direction) {
+        return data;
+      }
+    };
+  }])
+  .controller('GameController', ["$scope", 'Transformer', function($scope, Transformer) {
+    $scope.data = Transformer.generateRandom(
+            Transformer.generateRandom([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 16), 15);
     $scope.$on('move', function(e, direction) {
       console.log(direction);
     });    

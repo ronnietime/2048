@@ -10,8 +10,8 @@
   <body ng-app="game2048">
     <div class="wrapper" ng-controller="GameController">
       <div class="board" keydown-events>
-        <div class="row" ng-repeat="row in data">
-          <div ng-repeat="cell in row" ng-class="{'highlight': cell >= 2048}">{{cell}}</div>
+        <div class="row" ng-repeat="row in data track by $index">
+          <div ng-repeat="cell in row track by $index" ng-class="{'highlight': cell >= 2048}">{{cell}}</div>
         </div>
       </div>
       <div class="overlay">
