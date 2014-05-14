@@ -22,16 +22,15 @@ angular.module('game2048', [])
             case 68:
               direction = 'right';
               break;
-              
-            if (direction) {
-              $rootScope.$broadcast('move', direction);
-            }
+          }
+          if (direction) {
+            $rootScope.$broadcast('move', direction);
           }
         });
       }
     };
   }])
-  .controller('GameController', ["$scope", "$element", function($scope, $element) {
+  .controller('GameController', ["$scope", function($scope) {
     $scope.data = [
       [0, 2, 4, 8],
       [16, 32, 64, 128],
