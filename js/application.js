@@ -4,44 +4,41 @@ angular.module('game2048', [])
       restrict: 'A',
       link: function() {
         $document.on('keydown', function(e) {
-          console.log('Key down: ' + e.which);
+          var direction;
           switch (e.which) {
             case 38:
             case 87:
-              $rootScope.$broadcast('moveUp');
+              direction = 'up';
               break;
             case 37:
             case 65:
-              $rootScope.$broadcast('moveLeft');
+              direction = 'left';
               break;
             case 40:
             case 83:
-              $rootScope.$broadcast('moveDown');
+              direction = 'down';
               break;
             case 39:
             case 68:
-              $rootScope.$broadcast('moveRight');
+              direction = 'right';
               break;
+              
+            if (direction) {
+              $rootScope.$broadcast('move', direction);
+            }
           }
         });
       }
     };
   }])
   .controller('GameController', ["$scope", "$element", function($scope, $element) {
-    $scope.$on('moveUp', function() {
-      console.log('move up');
-    });
-    
-    $scope.$on('moveLeft', function() {
-      console.log('move left');
-    });
-    
-    $scope.$on('moveDown', function() {
-      console.log('move down');
-    });
-    
-    $scope.$on('moveRight', function() {
-      console.log('move right');
-    });
-    
+    $scope.data = [
+      [0, 2, 4, 8],
+      [16, 32, 64, 128],
+      [256, 512, 1024, 2048],
+      [4096, 8192, 16384, 32768]
+    ];
+    $scope.$on('move', function(e, direction) {
+      console.log(direction);
+    });    
   }]);
