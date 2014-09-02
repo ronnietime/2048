@@ -33,9 +33,11 @@ angular.module('game2048', [])
   .factory('Validator', [function() {
     return {
       countEmptySlot: function(data) {
-        var emptySlot = 0;
-        for (var i = 0; i < data.length; i++) {
-          for (var j = 0; j < data[i].length; j++) {
+        var emptySlot = 0,
+            i,
+            j;
+        for (i = 0; i < data.length; i++) {
+          for (j = 0; j < data[i].length; j++) {
             if (data[i][j] === 0) {
               emptySlot++;
             }
@@ -59,16 +61,25 @@ angular.module('game2048', [])
         if (numberOfPositions == 1) {
           return [Math.floor(Math.random() * upperLimit)];
         } else {
-          return [3, 4];
+          var baseArray = [], 
+              i,
+              randomNumber,
+              temp;
+          
+          // Fisher–Yates shuffle
+          for (i = 0; i < upperLimit; i++) {
+            baseArray[i] = i;
+          }
+          
+          for (i = upperLimit - 1; i >= 1; i--) {
+            randomNumber = Math.floor(Math.random() * (i + 1));
+            temp = baseArray[i];
+            baseArray[i] = baseArray[randomNumber];
+            baseArray[randomNumber] = temp;
+          }
+          
+          return baseArray.slice(0, numberOfPositions).sort(function(a, b) {return a - b});
         }
-      },
-      
-      generateOneRandomPosition: function(upperLimit) {
-        return ;
-      },
-      
-      generateTwoRandomPosition: function(upperLimit) {
-        
       },
       
       pickRandomValue: function() {
@@ -116,7 +127,7 @@ angular.module('game2048', [])
     };
   }])
   .controller('GameController', ['$scope', 'Transformer', function($scope, Transformer) {
-    $scope.data = Transformer.fillInSlots([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 1);
+    $scope.data = Transformer.fillInSlots([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 2);
     $scope.$on('move', function(e, direction) {
       console.log(direction);
     });    
