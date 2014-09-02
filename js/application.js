@@ -47,7 +47,55 @@ angular.module('game2048', [])
       },
       
       checkAvailableMove: function(data) {
+        var moveAvailable = false,
+            i,
+            j,
+            marker;
         
+        // If there is any empty slot or horizontally adjacent slots with same value, there is possible moving. 
+        for (i = 0; i < data.length; i++) {
+          marker = data[i][0];
+          for (j = 0; j < data[i].length; j++) {
+            if (data[i][j] === 0) {
+              moveAvailable = true;
+            } else {
+              if (j > 0) {
+                if (data[i][j] === marker) {
+                  moveAvailable = true;
+                } else {
+                  marker = data[i][j];
+                }
+              }
+            }
+            
+            if (moveAvailable) {
+              break;
+            }
+          }
+          if (moveAvailable) {
+            break;
+          }
+        }
+        
+        if (!moveAvailable) {
+          // If there is vertically adjacent slots with same value, there is possible moving.
+          for (j = 0; j < data[0].length; j++) {
+            marker = data[0][j];
+            for (i = 1; i < data.length; i++) {
+              if (data[i][j] === marker) {
+                moveAvailable = true;
+                break;
+              } else {
+                marker = data[i][j];
+              }
+            }
+            if (moveAvailable) {
+              break;
+            }
+          }
+        }
+        
+        return moveAvailable;
       }
     }
   }])
