@@ -34,8 +34,7 @@ angular.module('game2048', [])
     return {
       countEmptySlot: function(data) {
         var emptySlot = 0,
-            i,
-            j;
+            i, j;
         for (i = 0; i < data.length; i++) {
           for (j = 0; j < data[i].length; j++) {
             if (data[i][j] === 0) {
@@ -136,6 +135,139 @@ angular.module('game2048', [])
     }
   }])
   .factory('Transformer', ['Validator', 'RandomGenerator', function(Validator, RandomGenerator) {
+    function move(data, direction) {
+      var rowCount = data.length,
+          columnCount = data[0].length,
+          moved = false,
+          i, j, k;
+
+      switch (direction) {
+        case 'up':
+          for (j = 0; j < columnCount; j++) {
+            for (i = 0; i < rowCount; i++) {
+              if (data[i][j] == 0) {
+                for (k = i + 1; k < rowCount; k++) {
+                  if (data[k][j] != 0) {
+                    data[i][j] = data[k][j];
+                    data[k][j] = 0;
+                    moved = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          break;
+        case 'down':
+          for (j = 0; j < columnCount; j++) {
+            for (i = rowCount - 1; i >= 0; i--) {
+              if (data[i][j] == 0) {
+                for (k = i - 1; k >= 0; k--) {
+                  if (data[k][j] != 0) {
+                    data[i][j] = data[k][j];
+                    data[k][j] = 0;
+                    moved = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          break;
+        case 'left':
+          for (i = 0; i < rowCount; i++) {
+            for (j = 0; j < columnCount; j++) {
+              if (data[i][j] == 0) {
+                for (k = j + 1; k < columnCount; k++) {
+                  if (data[i][k] != 0) {
+                    data[i][j] = data[i][k];
+                    data[i][k] = 0;
+                    moved = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          break;
+        case 'right':
+          for (i = 0; i < rowCount; i++) {
+            for (j = columnCount - 1; j >= 0; j--) {
+              if (data[i][j] == 0) {
+                for (k = j - 1; k >= 0; k--) {
+                  if (data[i][k] != 0) {
+                    data[i][j] = data[i][k];
+                    data[i][k] = 0;
+                    moved = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          break;
+      }
+
+      return {data: data, moved: moved};
+
+    }
+
+    function merge(data, direction) {
+      var rowCount = data.length,
+          columnCount = data[0].length,
+          merged = false,
+          i, j, k;
+
+      switch (direction) {
+        case 'up':
+          for (j = 0; j < columnCount; j++) {
+            for (i = 0; i < rowCount - 1; i++) {
+              if (data[i][j] == data[i + 1][j] && data[i][j] != 0) {
+                data[i][j] = data[i][j] * 2;
+                data[i + 1][j] = 0;
+                merged = true;
+              }
+            }
+          }
+          break;
+        case 'down':
+          for (j = 0; j < columnCount; j++) {
+            for (i = rowCount - 1; i >= 1; i--) {
+              if (data[i][j] == data[i - 1][j] && data[i][j] != 0) {
+                data[i][j] = data[i][j] * 2;
+                data[i - 1][j] = 0;
+                merged = true;
+              }
+            }
+          }
+          break;
+        case 'left':
+          for (i = 0; i < rowCount; i++) {
+            for (j = 0; j < columnCount - 1; j++) {
+              if (data[i][j] == data[i][j + 1] && data[i][j] != 0) {
+                data[i][j] = data[i][j] * 2;
+                data[i][j + 1] = 0;
+                merged = true;
+              }
+            }
+          }
+          break;
+        case 'right':
+          for (i = 0; i < rowCount; i++) {
+            for (j = columnCount - 1; j >= 1; j--) {
+              if (data[i][j] == data[i][j - 1] && data[i][j] != 0) {
+                data[i][j] = data[i][j] * 2;
+                data[i][j - 1] = 0;
+                merged = true;
+              }
+            }
+          }
+          break;
+      }      
+
+      return {data: data, merged: merged};
+    }
+
     return {
       fillInSlots: function(data, numberOfSlotsToBeFilledIn) {
         var emptySlot = Validator.countEmptySlot(data);
@@ -147,16 +279,16 @@ angular.module('game2048', [])
           
           for (var i = 0; i < data.length; i++) {
             for (var j = 0; j < data[i].length; j++) {
-              if (emptyCounter == randomPositions[updatedCounter]) {
-                data[i][j] = RandomGenerator.pickRandomValue();
-                updatedCounter++;
-                emptyCounter++;
-                if (updatedCounter >= numberOfSlotsToBeFilledIn) {
-                  break;
-                }
-              }
-              
               if (data[i][j] === 0) {
+                if (emptyCounter == randomPositions[updatedCounter]) {
+                  data[i][j] = RandomGenerator.pickRandomValue();
+                  updatedCounter++;
+                  emptyCounter++;
+                  if (updatedCounter >= numberOfSlotsToBeFilledIn) {
+                    break;
+                  }
+                }
+
                 emptyCounter++;
               }
             }
@@ -170,13 +302,40 @@ angular.module('game2048', [])
       },
       
       eliminate: function(data, direction) {
-        return data;
+        console.log(Validator.checkAvailableMove(data));
+        if (Validator.checkAvailableMove(data)) {
+          var movedResult1 = move(data, direction),
+              moved1 = movedResult1.moved,
+              movedData1 = movedResult1.data,
+              mergedResult = merge(movedData1, direction),
+              merged = mergedResult.merged,
+              mergedData = mergedResult.data,
+              movedResult2 = move(mergedData, direction),
+              moved2 = movedResult2.moved,
+              movedData2 = movedResult2.data;
+
+          return {data: movedData2, changed: moved1 || merged || moved2}
+        } else {
+          alert("No more possible movement!");
+          return {data: data, changed: false};
+        }
       }
     };
   }])
   .controller('GameController', ['$scope', 'Transformer', function($scope, Transformer) {
     $scope.data = Transformer.fillInSlots([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 2);
     $scope.$on('move', function(e, direction) {
-      console.log(direction);
-    });    
+      console.log("data: " + $scope.data);
+      var eliminatedResult = Transformer.eliminate($scope.data, direction),
+          data = eliminatedResult.data,
+          changed = eliminatedResult.changed;
+      console.log("data: " + data + ". changed: " + changed + ". direction: " + direction);
+      if (changed) {
+        data = Transformer.fillInSlots(data, 1);
+        console.log("after data: " + data);
+      }
+      $scope.data = data;
+      $scope.$apply($scope.data);
+
+    });
   }]);
